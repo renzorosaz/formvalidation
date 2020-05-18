@@ -85,7 +85,8 @@ class LoginPage extends StatelessWidget {
             icon: Icon(Icons.alternate_email, color: Colors.deepPurple),
             hintText: 'ejemplo@correo.com',
             labelText: 'Correo electronico',
-            counterText: snapshot.data
+            counterText: snapshot.data,
+            errorText: snapshot.error
           ),
           onChanged:(value) => bloc.changeEmail(value) ,
        ),
@@ -101,6 +102,9 @@ class LoginPage extends StatelessWidget {
     return StreamBuilder(
       stream: bloc.passwordStream ,
       builder: (BuildContext context, AsyncSnapshot snapshot){
+
+          
+
           return Container(
         padding: EdgeInsets.symmetric(horizontal:20.0),
         child: TextField(
@@ -108,7 +112,8 @@ class LoginPage extends StatelessWidget {
           decoration: InputDecoration(
             icon: Icon(Icons.lock, color: Colors.deepPurpleAccent),
             labelText: 'Contraseña',
-             counterText: snapshot.data
+             counterText: snapshot.data,
+             errorText: snapshot.error
           ),
           onChanged: bloc.changePassword,
         ),
