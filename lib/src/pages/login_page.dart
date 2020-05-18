@@ -58,7 +58,7 @@ class LoginPage extends StatelessWidget {
                  SizedBox(height: 30.0),
                 _crearPassword(bloc),
                  SizedBox(height: 30.0),
-                 _crearBoton(),
+                 _crearBoton(context,bloc),
               ],
             ),
             
@@ -97,7 +97,7 @@ class LoginPage extends StatelessWidget {
 
   }
 
-  Widget _crearPassword(LoginBloc bloc){
+  Widget _crearPassword(LoginBloc bloc ){
 
     return StreamBuilder(
       stream: bloc.passwordStream ,
@@ -124,22 +124,39 @@ class LoginPage extends StatelessWidget {
 
   }
 
-  Widget _crearBoton(){
+  Widget _crearBoton(BuildContext context,LoginBloc bloc){
 
-    return RaisedButton(
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal:80.0, vertical:15.0),
-        child: Text('Ingresar'),
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(5.0)
-      ),
-      elevation: 0.0,
-      color:Colors.purple,
-      textColor: Colors.white,
-      onPressed: (){},
+    return StreamBuilder(
+      stream: bloc.formValidStream,
+      builder: (BuildContext context, AsyncSnapshot snapshot){
+
+          return RaisedButton(
+             child: Container(
+            padding: EdgeInsets.symmetric(horizontal:80.0, vertical:15.0),
+            child: Text('Ingresar'),
+            ),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(5.0)
+           ),
+           elevation: 0.0,
+           color:Colors.purple,
+           textColor: Colors.white,
+           onPressed:snapshot.hasData ? ()=> _login(context,bloc):null 
+          );
+
+      },
     );
   }
+
+  _login(BuildContext context,LoginBloc bloc){
+    
+    print('prrrrrrinttt');
+    print('prrrrrrinttt ${ bloc.email}');
+     print('prrrrrrinttt ${ bloc.password}');
+     Navigator.pushReplacementNamed(context, 'home');
+  }
+
+
 
 
   Widget _crearFondo(BuildContext context){
