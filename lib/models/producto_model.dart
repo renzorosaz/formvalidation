@@ -4,7 +4,7 @@ ProductoModel productoModelFromJson(String str) => ProductoModel.fromJson(json.d
 
 String productoModelToJson(ProductoModel data) => json.encode(data.toJson());
 
-class Productos{
+/* class Productos{
 
   List <ProductoModel> items= new List();
 
@@ -22,7 +22,7 @@ class Productos{
     }
   }
   
-}
+} */
 class ProductoModel {
     String id;
     String titulo;
@@ -33,7 +33,7 @@ class ProductoModel {
     ProductoModel({
         this.id,
         this.titulo = '',
-        this.valor = 0 ,
+        this.valor = 0.0 ,
         this.disponible = true,
         this.fotoUrl,
     });
@@ -47,7 +47,7 @@ class ProductoModel {
     );
 
     Map<String, dynamic> toJson() => {
-        "id": id,
+       //"id": id,
         "titulo": titulo,
         "valor": valor,
         "disponible": disponible,

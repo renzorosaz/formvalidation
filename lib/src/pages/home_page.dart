@@ -8,19 +8,19 @@ import 'package:formvalidation/providers/productos_provider.dart';
 
 class HomePage extends StatelessWidget {
 
-  
-    final productosProvider= new ProductosProvider();
+
+     final productosProvider= new ProductosProvider();
 
   @override
   Widget build(BuildContext context) {
     
-    productosProvider.cargarProductos();
+   /*  productosProvider.cargarProductos(); */
 
-    final bloc=Provider.of(context);
+    //final bloc=Provider.of(context); 
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Libros de Termodinámica'),
+        title: Text('Libros de Termodinámica')
       ),
       body: _crearListado(),
       
@@ -41,7 +41,7 @@ class HomePage extends StatelessWidget {
     Widget _crearListado(){
                 
          return FutureBuilder(
-          future:productosProvider.cargarProductos() ,
+          future:productosProvider.cargarProductos(),
           builder: (BuildContext context, AsyncSnapshot<List<ProductoModel>> snapshot) {
             if(snapshot.hasData){
               
@@ -49,8 +49,10 @@ class HomePage extends StatelessWidget {
 
                 return ListView.builder(
                   itemCount: productos.length,
-                  itemBuilder:(context,i) => _crearItem(context,productos[i]),
+                  itemBuilder:(context,i) => _crearItem(productos[i],context),
+                  
                 );
+                
             }
             else{
               return Center(
@@ -62,12 +64,28 @@ class HomePage extends StatelessWidget {
         
     }
 
-    Widget _crearItem(BuildContext context,ProductoModel producto){
+    Widget _crearItem(ProductoModel producto,BuildContext context){
 
-      return ListTile(
-        title: Text('${producto.titulo} - ${producto.valor}'),
-        subtitle:Text(producto.id),
-        onTap:() => Navigator.pushNamed(context,'producto'),
+      return Dismissible(
+        key : UniqueKey(),
+        background: Container(
+            color: Colors.red,
+        ),
+        onDismissed: (direccion){
+          //borrar producto
+          
+          productosProvider.borrarProducto(producto.id);
+          productosProvider.cargarProductos();
+          
+        },
+        child: ListTile(
+          title: Text('${producto.titulo} - ${producto.valor}'),
+          subtitle:Text(producto.id),
+          onTap:() {
+            Navigator.pushNamed(context, 'producto', arguments: producto);
+           productosProvider.cargarProductos(); 
+          },
+        ),
       );
 
     }
@@ -76,7 +94,10 @@ class HomePage extends StatelessWidget {
      return FloatingActionButton(
        child: Icon(Icons.add),
        backgroundColor: Colors.deepOrange,
-       onPressed: ()=> Navigator.pushNamed(context,'producto'),
+       onPressed: () {
+         Navigator.pushNamed(context,'producto');
+         productosProvider.cargarProductos();
+       },
      );
 
   }

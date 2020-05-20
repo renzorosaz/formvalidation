@@ -1,8 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:formvalidation/models/producto_model.dart';
 import 'package:formvalidation/providers/productos_provider.dart';
-import 'package:formvalidation/utils/utils.dart';
-
+import 'package:formvalidation/utils/utils.dart' as utils;
+import 'package:image_picker/image_picker.dart';
 
 class ProductoPage extends StatefulWidget {
   
@@ -11,26 +13,38 @@ class ProductoPage extends StatefulWidget {
 }
 
 class _ProductoPageState extends State<ProductoPage> {
-  final formKey =GlobalKey<FormState>();
 
+  final formKey =GlobalKey<FormState>();
+  final scafooldKey =GlobalKey<ScaffoldState>();
   final productoProvider= new ProductosProvider();
 
   ProductoModel producto = new ProductoModel();
 
+  bool _guardando = false;
+  File foto;
+
   @override
   Widget build(BuildContext context) {
 
+    final ProductoModel produdData = ModalRoute.of(context).settings.arguments;
+    
+    if(produdData != null){
+    producto = produdData;
+  }
+
+
     return Scaffold(
+      key: scafooldKey,
       appBar: AppBar(
         title:Text('Producto'),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.photo_size_select_actual),
-            onPressed:(){}
+            onPressed: _seleccionarFoto,
             ),
             IconButton(
             icon: Icon(Icons.camera_alt),
-            onPressed:(){}
+            onPressed: _tomarFoto,
             ),
         ],
       ),
@@ -41,6 +55,7 @@ class _ProductoPageState extends State<ProductoPage> {
             key: formKey,
             child: Column(
               children: <Widget>[
+                _mostrarFoto(),
                 _crearNombre(),
                 _crearPrecio(),
                 _crearDisponible(),
@@ -97,7 +112,7 @@ class _ProductoPageState extends State<ProductoPage> {
       ),
       onSaved: (value)=> producto.valor =double.parse(value),
       validator: (value){
-         if(isNumerico(value)){
+         if(utils.isNumerico(value)){
            return null;
          }
          else{
@@ -117,22 +132,87 @@ class _ProductoPageState extends State<ProductoPage> {
             textColor: Colors.white,
             icon: Icon(Icons.save),
             label: Text('Guardar'),
-            onPressed: _submit,
+            onPressed:(  _guardando) ? null : _submit,
         );  
   }
 
-  void _submit(){
+  void _submit() async{
+
 
       if(!formKey.currentState.validate()) return;
       
       formKey.currentState.save();
 
-      print('todo ok');
+      setState(() { _guardando =true;  });
+
+      if(foto != null){
+        
+        producto.fotoUrl = await productoProvider.subirImagen(foto);
+      }
+
+      /* print('todo ok');
       print(producto.titulo);
       print(producto.valor);
-      print(producto.disponible);
+      print(producto.disponible); */
 
-productoProvider.crearProducto(producto);
+      if(producto.id ==null){
+        productoProvider.crearProducto(producto);
+      }else{
+        productoProvider.editarProducto(producto);
+      }
+      
 
+    mostrarSnackbar('Registro Guardado');
+    
+    Navigator.of(context).pushNamedAndRemoveUntil('home', (Route<dynamic> route) => false);
+  }
+
+  void mostrarSnackbar(String mensaje){
+
+    final snackbar= SnackBar(
+
+      content: Text(mensaje),
+      duration: Duration(milliseconds:1500),
+      backgroundColor: Colors.orangeAccent,
+    );
+
+    scafooldKey.currentState.showSnackBar(snackbar);
+  }
+
+  _mostrarFoto(){
+      if(producto.fotoUrl !=null){
+// tengo que hace resto
+        return Container();
+      }else{
+        return Image(
+
+          image: AssetImage(foto?.path ?? 'assets/original.png'),
+          height: 300.0,
+          fit:BoxFit.cover,
+        );
+      }
+  }
+
+  _seleccionarFoto() async{
+    
+   _procesarImagen(ImageSource.gallery);
+
+  }
+
+  _tomarFoto() async {
+
+    _procesarImagen(ImageSource.camera);
+  }
+
+  _procesarImagen(ImageSource origen) async{
+
+       foto = await ImagePicker.pickImage(
+      source: origen
+      );
+
+    if(foto != null){
+          producto.fotoUrl = null;
+    }   
+   setState(() {});
   }
 }
