@@ -1,29 +1,87 @@
 import 'package:flutter/material.dart';
+
 import 'package:formvalidation/bloc/provider.dart';
+import 'package:formvalidation/models/producto_model.dart';
+import 'package:formvalidation/providers/productos_provider.dart';
+
 
 
 class HomePage extends StatelessWidget {
-  const HomePage({Key key}) : super(key: key);
+
+  
+    final productosProvider= new ProductosProvider();
 
   @override
   Widget build(BuildContext context) {
     
+    productosProvider.cargarProductos();
+
     final bloc=Provider.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Menu Casita'),
+        title: Text('Libros de Termodinámica'),
       ),
-      body : Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Text('Email: ${bloc.email}'),
-            Divider(),
-            Text('Password: ${bloc.password}'),
-            
-          ],
-        ),
+      body: _crearListado(),
+      
+      
+      /* Container(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: <Widget>[
+              _crearListado()
+            ],
+          ),
+        ), */
+
+      floatingActionButton: _creatBoton(context),
     );
   }
+
+    Widget _crearListado(){
+                
+         return FutureBuilder(
+          future:productosProvider.cargarProductos() ,
+          builder: (BuildContext context, AsyncSnapshot<List<ProductoModel>> snapshot) {
+            if(snapshot.hasData){
+              
+                final productos = snapshot.data;
+
+                return ListView.builder(
+                  itemCount: productos.length,
+                  itemBuilder:(context,i) => _crearItem(context,productos[i]),
+                );
+            }
+            else{
+              return Center(
+                  child: CircularProgressIndicator(),
+              );
+            }
+          },
+        ); 
+        
+    }
+
+    Widget _crearItem(BuildContext context,ProductoModel producto){
+
+      return ListTile(
+        title: Text('${producto.titulo} - ${producto.valor}'),
+        subtitle:Text(producto.id),
+        onTap:() => Navigator.pushNamed(context,'producto'),
+      );
+
+    }
+
+    _creatBoton(BuildContext context){
+     return FloatingActionButton(
+       child: Icon(Icons.add),
+       backgroundColor: Colors.deepOrange,
+       onPressed: ()=> Navigator.pushNamed(context,'producto'),
+     );
+
+  }
+   
+
+
+   
 }
