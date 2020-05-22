@@ -47,7 +47,8 @@ class ProductosProvider {
     final Map<String,dynamic> decodedData = json.decode(resp.body);
     final List<ProductoModel> productos= new List();
 
-      if(decodedData == null)return [];
+      if(decodedData == null) return [];
+
       decodedData.forEach((id, prod) { 
 
         final prodTemp= ProductoModel.fromJson(prod);
@@ -57,7 +58,7 @@ class ProductosProvider {
         
       }) ;
 
-      print(productos[0].id);
+    //  print(productos[0].id);
 
     return productos;
 
@@ -104,7 +105,8 @@ class ProductosProvider {
 
     final respData  = json.decode(resp.body);
     print(respData);
-    return respData['secure-url'];
+
+    return respData['url'];
 
   }
 

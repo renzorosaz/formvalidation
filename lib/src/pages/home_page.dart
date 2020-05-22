@@ -20,7 +20,7 @@ class HomePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Libros de Termodinámica')
+        title: Text('Firebase - Provider - Bloc')
       ),
       body: _crearListado(),
       
@@ -78,16 +78,34 @@ class HomePage extends StatelessWidget {
           productosProvider.cargarProductos();
           
         },
-        child: ListTile(
-          title: Text('${producto.titulo} - ${producto.valor}'),
-          subtitle:Text(producto.id),
-          onTap:() {
-            Navigator.pushNamed(context, 'producto', arguments: producto);
-           productosProvider.cargarProductos(); 
-          },
+        child: Card(
+          child: Column(
+            children: <Widget>[
+
+              (producto.fotoUrl == null)
+                ?Image(image:AssetImage('assets/original.png'))
+                : FadeInImage(
+                      image: NetworkImage(producto.fotoUrl),
+                      placeholder: AssetImage('assets/carga.gif'),
+                      height: 300.0,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                ),
+
+                   ListTile(
+                        title: Text('${producto.titulo} - ${producto.valor}'),
+                        subtitle:Text(producto.id),
+                        onTap:() {
+                          Navigator.pushNamed(context, 'producto', arguments: producto);
+                        productosProvider.cargarProductos(); 
+                        },
+              ),
+            ],
+          ),
         ),
       );
 
+       
     }
 
     _creatBoton(BuildContext context){

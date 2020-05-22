@@ -143,7 +143,7 @@ class _ProductoPageState extends State<ProductoPage> {
       
       formKey.currentState.save();
 
-      setState(() { _guardando =true;  });
+      
 
       if(foto != null){
         
@@ -154,6 +154,8 @@ class _ProductoPageState extends State<ProductoPage> {
       print(producto.titulo);
       print(producto.valor);
       print(producto.disponible); */
+
+      setState(() { _guardando =true;  });
 
       if(producto.id ==null){
         productoProvider.crearProducto(producto);
@@ -180,17 +182,26 @@ class _ProductoPageState extends State<ProductoPage> {
   }
 
   _mostrarFoto(){
-      if(producto.fotoUrl !=null){
-// tengo que hace resto
-        return Container();
-      }else{
-        return Image(
-
-          image: AssetImage(foto?.path ?? 'assets/original.png'),
-          height: 300.0,
-          fit:BoxFit.cover,
-        );
-      }
+          if (producto.fotoUrl != null) {
+      
+            return FadeInImage(
+              image: NetworkImage(producto.fotoUrl),
+              placeholder: AssetImage('carga.gif'),
+              height: 150.0,
+              fit: BoxFit.contain,
+            );
+      
+          } else {
+      
+            if( foto != null ){
+              return Image.file(
+                foto,
+                fit: BoxFit.cover,
+                height: 150.0,
+              );
+            }
+            return Image.asset('assets/original.png');
+          }
   }
 
   _seleccionarFoto() async{
@@ -207,12 +218,14 @@ class _ProductoPageState extends State<ProductoPage> {
   _procesarImagen(ImageSource origen) async{
 
        foto = await ImagePicker.pickImage(
-      source: origen
-      );
+       source: origen
+        );
 
-    if(foto != null){
+      if(foto != null){
           producto.fotoUrl = null;
-    }   
+     }
+
    setState(() {});
+   
   }
 }
