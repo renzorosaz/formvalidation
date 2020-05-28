@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:formvalidation/bloc/productos_bloc.dart';
 
 import 'package:formvalidation/bloc/provider.dart';
 import 'package:formvalidation/models/producto_model.dart';
@@ -8,21 +9,17 @@ import 'package:formvalidation/providers/productos_provider.dart';
 
 class HomePage extends StatelessWidget {
 
-
-     final productosProvider= new ProductosProvider();
-
   @override
   Widget build(BuildContext context) {
     
-   /*  productosProvider.cargarProductos(); */
-
-    //final bloc=Provider.of(context); 
+   final productosBloc = Provider.productosBloc(context);
+   productosBloc.cargarProductos();
 
     return Scaffold(
       appBar: AppBar(
         title: Text('Firebase - Provider - Bloc')
       ),
-      body: _crearListado(),
+      body: _crearListado(productosBloc),
       
       
       /* Container(
@@ -34,22 +31,22 @@ class HomePage extends StatelessWidget {
           ),
         ), */
 
-      floatingActionButton: _creatBoton(context),
+      floatingActionButton: _creatBoton(context,productosBloc),
     );
   }
 
-    Widget _crearListado(){
-                
-         return FutureBuilder(
-          future:productosProvider.cargarProductos(),
-          builder: (BuildContext context, AsyncSnapshot<List<ProductoModel>> snapshot) {
+    Widget _crearListado(ProductosBloc productosBloc){
+
+        return StreamBuilder(
+          stream: productosBloc.productosStream,
+          builder: (BuildContext context, AsyncSnapshot<List<ProductoModel>> snapshot){
             if(snapshot.hasData){
               
                 final productos = snapshot.data;
 
                 return ListView.builder(
                   itemCount: productos.length,
-                  itemBuilder:(context,i) => _crearItem(productos[i],context),
+                  itemBuilder:(context,i) => _crearItem(productos[i],productosBloc,context),
                   
                 );
                 
@@ -60,11 +57,11 @@ class HomePage extends StatelessWidget {
               );
             }
           },
-        ); 
-        
+        );
+
     }
 
-    Widget _crearItem(ProductoModel producto,BuildContext context){
+    Widget _crearItem(ProductoModel producto,ProductosBloc productosBloc,BuildContext context){
 
       return Dismissible(
         key : UniqueKey(),
@@ -72,10 +69,9 @@ class HomePage extends StatelessWidget {
             color: Colors.red,
         ),
         onDismissed: (direccion){
-          //borrar producto
-          
-          productosProvider.borrarProducto(producto.id);
-          productosProvider.cargarProductos();
+          //borrar producto    
+          productosBloc.cargarProductos();   
+          productosBloc.borrarProducto(producto.id);
           
         },
         child: Card(
@@ -97,7 +93,7 @@ class HomePage extends StatelessWidget {
                         subtitle:Text(producto.id),
                         onTap:() {
                           Navigator.pushNamed(context, 'producto', arguments: producto);
-                        productosProvider.cargarProductos(); 
+                        productosBloc.cargarProductos(); 
                         },
               ),
             ],
@@ -108,13 +104,13 @@ class HomePage extends StatelessWidget {
        
     }
 
-    _creatBoton(BuildContext context){
+    _creatBoton(BuildContext context,ProductosBloc productosBloc){
      return FloatingActionButton(
        child: Icon(Icons.add),
        backgroundColor: Colors.deepOrange,
        onPressed: () {
          Navigator.pushNamed(context,'producto');
-         productosProvider.cargarProductos();
+         productosBloc.cargarProductos();
        },
      );
 

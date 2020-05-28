@@ -1,8 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:formvalidation/bloc/productos_bloc.dart';
+import 'package:formvalidation/bloc/provider.dart';
 import 'package:formvalidation/models/producto_model.dart';
-import 'package:formvalidation/providers/productos_provider.dart';
 import 'package:formvalidation/utils/utils.dart' as utils;
 import 'package:image_picker/image_picker.dart';
 
@@ -16,8 +17,8 @@ class _ProductoPageState extends State<ProductoPage> {
 
   final formKey =GlobalKey<FormState>();
   final scafooldKey =GlobalKey<ScaffoldState>();
-  final productoProvider= new ProductosProvider();
 
+  ProductosBloc productosBloc;
   ProductoModel producto = new ProductoModel();
 
   bool _guardando = false;
@@ -26,6 +27,7 @@ class _ProductoPageState extends State<ProductoPage> {
   @override
   Widget build(BuildContext context) {
 
+     productosBloc = Provider.productosBloc(context); 
     final ProductoModel produdData = ModalRoute.of(context).settings.arguments;
     
     if(produdData != null){
@@ -128,7 +130,7 @@ class _ProductoPageState extends State<ProductoPage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20.0)
           ),
-            color: Colors.deepOrange,
+            color: Colors.purpleAccent,
             textColor: Colors.white,
             icon: Icon(Icons.save),
             label: Text('Guardar'),
@@ -147,20 +149,16 @@ class _ProductoPageState extends State<ProductoPage> {
 
       if(foto != null){
         
-        producto.fotoUrl = await productoProvider.subirImagen(foto);
+        producto.fotoUrl = await productosBloc.subirFoto(foto);
       }
 
-      /* print('todo ok');
-      print(producto.titulo);
-      print(producto.valor);
-      print(producto.disponible); */
 
       setState(() { _guardando =true;  });
 
       if(producto.id ==null){
-        productoProvider.crearProducto(producto);
+        productosBloc.agregarProducto(producto);
       }else{
-        productoProvider.editarProducto(producto);
+        productosBloc.editarProducto(producto);
       }
       
 
